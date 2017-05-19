@@ -1,0 +1,10 @@
+{
+    "prod": {
+        "aws_region": "us-east-1",
+        "django_settings": "fair_health.settings.prod",
+        "profile_name": "default",
+        "keep_warm": false,
+        "domain": "fairhealth.site",
+        "remote_env": "s3://fairhealthconfig/env.json"
+    }
+}

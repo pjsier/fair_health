@@ -1,0 +1,18 @@
+body .main {
+  margin-top: 60px;
+  margin-bottom: 25px;
+}
+
+.button-row {
+  padding: 20px;
+}
+
+form {
+  margin-bottom: 25px;
+}
+
+text {
+  font-size: 8;
+  font-family: "Helvetica Neue", Helvetica, sans-serif;
+  fill: black;
+}

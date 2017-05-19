@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-10">
+    <h1>Health Fair Screener</h1>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-10">
+    <form name="homeForm" method="POST" action="{% url 'home' %}">
+      <hr>
+      {% csrf_token %}
+      {% include 'form.html' %}
+      <button type="submit" class="btn btn-primary btn-lg btn-block">Get Recommendations</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
