@@ -5,6 +5,7 @@
         "profile_name": "default",
         "keep_warm": false,
         "domain": "fairhealth.site",
+        "s3_bucket": "fairhealthmain",
         "certificate_arn": "arn:aws:acm:us-east-1:146849845625:certificate/2e9fbb29-de69-4051-b889-ec34dcc833bd",
         "remote_env": "s3://fairhealthconfig/env.json"
     }
