@@ -3,7 +3,6 @@ from datetime import datetime
 from django.shortcuts import render
 from django.conf import settings
 from django.urls import reverse
-from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.views.generic import View, TemplateView
 
@@ -162,7 +161,7 @@ class ScreenView(TemplateView):
         try:
             screen_obj = ScreenModel.get(kwargs['slug'])
         except ScreenModel.DoesNotExist:
-            return JsonResonse({'message': 'Not found'})
+            return JsonResponse({'message': 'Not found'})
 
         screen_obj.update({
             'params': {
@@ -185,7 +184,7 @@ class ScreenView(TemplateView):
 
         response_dict.update(get_api_options())
         if request.GET.get('format') == 'json':
-            return JsonResponse(providers)
+            return JsonResponse(provider_info)
         return render(request, self.template_name, response_dict)
 
 
@@ -205,11 +204,11 @@ class SendTextView(View):
         provider_info = query_providers(screen_obj.params)
         msg_docs = []
         for doc in provider_info:
-            msc_docs.append('Name: {}\nPhone: {}\nOffice: {}\n\n'.format(
+            msg_docs.append('Name: {}\nPhone: {}\nOffice: {}\n\n'.format(
                 doc['full_name'], doc['phone'], doc['location'])
             )
 
-        message = client.messages.create(
+        client.messages.create(
             to=patient_number,
             from_=settings.TWILIO_CALLER_ID,
             body= ''.join(msg_docs) + 'https://' + request.get_host() + reverse('screen', kwargs=kwargs)
