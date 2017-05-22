@@ -19,7 +19,7 @@
     {% endif %}
   </div>
 </div>
-<hr>  
+<hr>
 <div class="row">
   <div id="copy-clipboard" class="col-md-3">
     <span id="urlVal">http://{{request.get_host}}/{{screen.slug}}</span>
@@ -52,7 +52,7 @@
       <tbody>
         {% for provider in providers %}
         <tr>
-          <td><a href="{% url 'detail' provider.npi %}">{{provider.full_name}}</a></td>
+          <td><a href="https://projects.propublica.org/vital-signs/doctor/{{provider.npi}}">{{provider.full_name}}</a></td>
           <td>{{provider.location}}</td>
           <td>{{provider.phone}}</td>
         </tr>
