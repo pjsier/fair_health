@@ -61,16 +61,8 @@ STATICFILES_DIRS = [
 
 WSGI_APPLICATION = 'fair_health.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('POSTGRES_DB'),
-        'USER': os.environ.get('POSTGRES_USER'),
-        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
-        'HOST': os.environ.get('POSTGRES_HOST'),
-        'PORT': os.environ.get('POSTGRES_PORT')
-    }
-}
+# Using PynamoDB for DynamoDB backend within AWS free tier
+DATABASES = {}
 
 
 # Password validation

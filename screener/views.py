@@ -1,18 +1,18 @@
 import requests
-
+from datetime import datetime
 from django.shortcuts import render
 from django.conf import settings
 from django.urls import reverse
-from django.db.models import F
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.views.generic import View, TemplateView
 
 from twilio.rest import Client
 
-from screener.models import *
+from screener.models import ScreenModel, UserModel
 
 FORM_PARAMS = ['zip_code', 'insurance', 'specialty', 'gender']
+
 
 def parse_params(param_dict):
     params = {}
@@ -99,12 +99,15 @@ class HomeView(TemplateView):
                 self.template_name,
                 {'message': 'Must include search terms for providers'}
             )
-        screen_obj = Screen.objects.create(
-            slug=Screen.make_slug(),
+        screen_obj = ScreenModel(
+            ScreenModel.make_slug(),
+            created_at=datetime.now(),
             params=params,
             phone=post_args.get('phone'),
-            email=post_args.get('email')
+            email=post_args.get('email'),
+            visits=-1
         )
+        screen_obj.save()
 
         return HttpResponseRedirect(
             reverse('screen',
@@ -120,19 +123,25 @@ class ScreenView(TemplateView):
 
     # Renders template based on pre-created slug
     def get(self, request, *args, **kwargs):
-        screen_obj = Screen.objects.filter(slug=kwargs['slug'])
-        if not len(screen_obj):
+        try:
+            screen_obj = ScreenModel.get(kwargs['slug'])
+        except ScreenModel.DoesNotExist:
             return HttpResponseBadRequest()
 
         skip_val = int(request.GET.get('skip', 0))
         # Only update visits count if it's the first page
         if skip_val == 0:
-            screen_obj.update(visits=F('visits')+1)
+            screen_obj.update({
+                'visits': {
+                    'action': 'add',
+                    'value': 1
+                }
+            })
 
         provider_info = query_providers(
-            screen_obj[0].params, skip=skip_val
+            screen_obj.params, skip=skip_val
         )
-        response_dict = {'screen': screen_obj[0], 'providers': provider_info}
+        response_dict = {'screen': screen_obj, 'providers': provider_info}
         if skip_val >= 10:
             response_dict['prev_skip'] = skip_val - 10
         response_dict['next_skip'] = skip_val + 10
@@ -145,17 +154,28 @@ class ScreenView(TemplateView):
         params = parse_params(post_args)
         if len(params.keys()) == 0:
             return JsonResponse({'message': 'Must include search terms for providers'})
-        screen_obj = Screen.objects.filter(slug=kwargs['slug'])
-        if not len(screen_obj):
+        try:
+            screen_obj = ScreenModel.get(kwargs['slug'])
+        except ScreenModel.DoesNotExist:
             return JsonResonse({'message': 'Not found'})
 
-        screen_obj.update(
-            params=params,
-            phone=post_args.get('phone'),
-            email=post_args.get('email')
-        )
+        screen_obj.update({
+            'params': {
+                'action': 'put',
+                'value': params
+            },
+            'phone': {
+                'action': 'put',
+                'value': post_args.get('phone')
+            },
+            'email': {
+                'action': 'email',
+                'value': post_args.get('email')
+            }
+        })
+
         provider_info = query_providers(params)
-        response_dict = {'screen': screen_obj[0], 'providers': provider_info}
+        response_dict = {'screen': screen_obj, 'providers': provider_info}
         response_dict['next_skip'] = 10
 
         response_dict.update(get_api_options())
@@ -169,14 +189,15 @@ class SendTextView(View):
         return super(SendTextView, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        screen_obj = Screen.objects.filter(slug=kwargs['slug'])
-        if not len(screen_obj):
+        try:
+            screen_obj = ScreenModel.get(kwargs['slug'])
+        except ScreenModel.DoesNotExist:
             return HttpResponseBadRequest()
 
-        patient_number = screen_obj[0].phone
+        patient_number = screen_obj.phone
         client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
 
-        provider_info = query_providers(screen_obj[0].params)
+        provider_info = query_providers(screen_obj.params)
         msg_docs = []
         for doc in provider_info:
             msc_docs.append('Name: {}\nPhone: {}\nOffice: {}\n\n'.format(
@@ -209,12 +230,12 @@ class DashboardView(TemplateView):
         return super(DashboardView, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        screens = Screen.objects.all().values()
+        screens = ScreenModel.scan()
         param_list = [
             dict(
-                s['params'],
-                **{'date': s['created_at'].strftime('%Y-%m-%d'),
-                'visits': s['visits']}
+                params=s.params,
+                date=s.created_at.strftime('%Y-%m-%d'),
+                visits=s.visits
             ) for s in screens
         ]
         return render(request, self.template_name, {'param_list': param_list})
