@@ -11,7 +11,7 @@ from twilio.rest import Client
 
 from screener.models import ScreenModel, UserModel
 
-FORM_PARAMS = ['zip_code', 'insurance', 'specialty', 'gender']
+FORM_PARAMS = ['zip_code', 'insurance_uid', 'specialty_uid', 'gender']
 
 
 def parse_params(param_dict):
@@ -31,11 +31,13 @@ def get_best_practices(practices):
 
 
 def query_providers(params, skip=0):
+    params = params.copy()
     params['skip'] = skip
     params['user_key'] = settings.BETTER_DOCTOR_API_KEY
+    params['sort'] = 'distance-asc'
     zip_code = params.pop('zip_code')
     coords = settings.ZIP_MAP.get(str(zip_code), (41.837, -87.685))
-    params['location'] = '{},{},25'.format(*coords)
+    params['location'] = '{},{},30'.format(*coords)
     r = requests.get(settings.BETTER_DOCTOR_URL, params=params)
 
     doc_dicts = []
@@ -66,16 +68,18 @@ def get_api_options():
     return {
         'gender_options': [
             {'value': 'female', 'display': 'Female'},
-            {'value': 'male', 'display': 'Male'},
-            {'value': 'other', 'display': 'Other'}
+            {'value': 'male', 'display': 'Male'}
         ],
         'specialty_options': [
-            {'value': 'pcp', 'display': 'Primary Care Provider'},
-            {'value': 'end', 'display': 'Endocrinologist'}
+            {'value': 'family-practitioner,family-nurse-practitioner,general-practitioner,nurse-practitioner,family-medicine-adult-medicine',
+            'display': 'Family Medicine'},
+            {'value': 'endocrinologist', 'display': 'Endocrinologist'},
+            {'value': 'foot-ankle-orthopedist', 'display': 'Foot and Ankle Surgeon'}
         ],
         'insurance_options': [
-            {'value': 'medicaid', 'display': 'Medicaid'},
-            {'value': 'aetna', 'display': 'Aetna'}
+            {'value': 'medicaid-medicaid', 'display': 'Medicaid'},
+            {'value': 'aetna-aetnadmo', 'display': 'Aetna DMO'},
+            {'value': 'aetna-aetnadmo', 'display': 'Aetna HMO'}
         ]
     }
 
@@ -144,7 +148,8 @@ class ScreenView(TemplateView):
         response_dict = {'screen': screen_obj, 'providers': provider_info}
         if skip_val >= 10:
             response_dict['prev_skip'] = skip_val - 10
-        response_dict['next_skip'] = skip_val + 10
+        if len(provider_info) == 10:
+            response_dict['next_skip'] = skip_val + 10
 
         response_dict.update(get_api_options())
         return render(request, self.template_name, response_dict)
@@ -169,7 +174,7 @@ class ScreenView(TemplateView):
                 'value': post_args.get('phone')
             },
             'email': {
-                'action': 'email',
+                'action': 'put',
                 'value': post_args.get('email')
             }
         })

@@ -26,28 +26,28 @@
   </div>
 </div>
 <div class="form-group">
-  <label for="insurance">Insurance</label>
-  <select class="form-control" id="insurance" name="insurance">
+  <label for="insurance_uid">Insurance</label>
+  <select class="form-control" id="insurance_uid" name="insurance_uid">
     <option></option>
     {% for insurance in insurance_options %}
     <option value="{{insurance.value}}"
     {% if screen %}
-    {% if 'insurance' in screen.params %}
-    {% if screen.params.insurance == insurance.value %}
+    {% if 'insurance_uid' in screen.params %}
+    {% if screen.params.insurance_uid == insurance.value %}
     selected
     {% endif %}{% endif %}{% endif %}>{{insurance.display}}</option>
     {% endfor %}
   </select>
 </div>
 <div class="form-group">
-  <label for="specialty">Specialty</label>
-  <select class="form-control" id="specialty" name="specialty">
+  <label for="specialty_uid">Specialty</label>
+  <select class="form-control" id="specialty_uid" name="specialty_uid">
     <option></option>
     {% for specialty in specialty_options %}
     <option value="{{specialty.value}}"
       {% if screen %}
-      {% if 'specialty' in screen.params %}
-      {% if screen.params.specialty == specialty.value %}
+      {% if 'specialty_uid' in screen.params %}
+      {% if screen.params.specialty_uid == specialty.value %}
       selected
       {% endif %}{% endif %}{% endif %}>{{specialty.display}}</option>
     {% endfor %}

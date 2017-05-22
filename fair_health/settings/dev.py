@@ -11,5 +11,5 @@ else:
 
     from screener.models import ScreenModel, UserModel
 
-    ScreenModel.Meta.host = 'http://localhost:8000'
-    UserModel.Meta.host = 'http://localhost:8000'
+    # ScreenModel.Meta.host = 'http://localhost:8000'
+    # UserModel.Meta.host = 'http://localhost:8000'
