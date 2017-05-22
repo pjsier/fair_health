@@ -11,6 +11,5 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Create database (first create user, add to env vars in `fair_health/settings/base.py`),
-then run:
-`python manage.py migrate`
+Make sure that AWS credentials are set up through `aws-cli`, then run
+`python manage.py setup_dynamodb` and then `.deploy.sh`
