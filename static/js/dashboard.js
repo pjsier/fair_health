@@ -11,6 +11,11 @@ var insuranceSvg = d3.select("#insuranceChart")
     .attr("height", height + margin.top + margin.bottom)
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+var specialtySvg = d3.select("#specialtyChart")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 
 (function() {
@@ -59,7 +64,7 @@ var insuranceSvg = d3.select("#insuranceChart")
       .text(function(d) { return d.value; });
 
   var insuranceData = d3.nest()
-    .key(function(d) { return d.insurance; })
+    .key(function(d) { return d.params.insurance_uid; })
     .rollup(function(v) { return v.length; })
     .entries(screenData);
 
@@ -93,6 +98,47 @@ var insuranceSvg = d3.select("#insuranceChart")
 
   insDataBars.selectAll("text")
     .data(insuranceData).enter()
+    .append("text")
+      .attr("x", function(d) { return x(d.key)+(x.bandwidth()/2); })
+      .attr("y", function(d) { return y(d.value)-10; })
+      .style("text-anchor", "middle")
+      .text(function(d) { return d.value; });
+
+  var specialtyData = d3.nest()
+    .key(function(d) { return d.params.specialty_uid; })
+    .rollup(function(v) { return v.length; })
+    .entries(screenData);
+
+  y.domain([0, d3.max(specialtyData, function(d) { return d.value; })]);
+  x.domain(specialtyData.map(function(d) { return d.key; }));
+
+  specialtySvg.append("g")
+      .attr("class", "axis x")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x));
+
+  specialtySvg.append("g")
+      .attr("class", "axis y")
+      .call(d3.axisLeft(y).ticks(5))
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", "0.71em")
+      .attr("text-anchor", "end")
+      .text("# Screens");
+
+  var speDataBars = specialtySvg.append("g");
+  speDataBars.selectAll("rect")
+    .data(specialtyData).enter()
+    .append("rect")
+      .attr("fill", "steelblue")
+      .attr("x", function(d) { return x(d.key); })
+      .attr("y", function(d) { return y(d.value); })
+      .attr("width", x.bandwidth())
+      .attr("height", function(d) { return height - y(d.value); });
+
+  speDataBars.selectAll("text")
+    .data(specialtyData).enter()
     .append("text")
       .attr("x", function(d) { return x(d.key)+(x.bandwidth()/2); })
       .attr("y", function(d) { return y(d.value)-10; })
