@@ -37,6 +37,7 @@ def query_providers(params, skip=0):
     zip_code = params.pop('zip_code')
     coords = settings.ZIP_MAP.get(str(zip_code), (41.837, -87.685))
     params['location'] = '{},{},30'.format(*coords)
+    params['limit'] = settings.PAGE_COUNT
     r = requests.get(settings.BETTER_DOCTOR_URL, params=params)
 
     doc_dicts = []
@@ -145,10 +146,10 @@ class ScreenView(TemplateView):
             screen_obj.params, skip=skip_val
         )
         response_dict = {'screen': screen_obj, 'providers': provider_info}
-        if skip_val >= 10:
-            response_dict['prev_skip'] = skip_val - 10
-        if len(provider_info) == 10:
-            response_dict['next_skip'] = skip_val + 10
+        if skip_val >= settings.PAGE_COUNT:
+            response_dict['prev_skip'] = skip_val - settings.PAGE_COUNT
+        if len(provider_info) == settings.PAGE_COUNT:
+            response_dict['next_skip'] = skip_val + settings.PAGE_COUNT
 
         response_dict.update(get_api_options())
         return render(request, self.template_name, response_dict)
@@ -180,7 +181,7 @@ class ScreenView(TemplateView):
 
         provider_info = query_providers(params)
         response_dict = {'screen': screen_obj, 'providers': provider_info}
-        response_dict['next_skip'] = 10
+        response_dict['next_skip'] = settings.PAGE_COUNT
 
         response_dict.update(get_api_options())
         if request.GET.get('format') == 'json':

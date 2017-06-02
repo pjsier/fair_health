@@ -132,6 +132,8 @@ VITAL_SIGNS_API_KEY = os.environ.get('VITAL_SIGNS_API_KEY')
 
 INTERNAL_IPS = ['127.0.0.1']
 
+PAGE_COUNT = 25
+
 with open(os.path.join(BASE_DIR, 'fair_health', 'settings', 'zip_centroids.csv'), 'r') as csvf:
     reader = csv.reader(csvf, delimiter=',')
     ZIP_MAP = {str(row[0]): (float(row[1]), float(row[2])) for row in reader}

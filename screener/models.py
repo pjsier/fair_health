@@ -38,3 +38,14 @@ class ScreenModel(Model):
         firstword = settings.SLUG_WORDS[random.randint(0, 1501)]
         num = str(random.randint(1, 100))
         return ''.join([firstword, num])
+
+
+class ResourceModel(Model):
+    class Meta:
+        table_name = 'fairhealth-resource'
+    name = UnicodeAttribute(hash_key=True)
+    hours = UnicodeAttribute(null=True)
+    address = UnicodeAttribute(null=True)
+    zip_code = UnicodeAttribute(null=True)
+    phone = UnicodeAttribute(null=True)
+    specialties = JSONAttribute()
