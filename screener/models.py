@@ -12,16 +12,6 @@ ROLE_CHOICES = (
 )
 
 
-class UserModel(Model):
-    class Meta:
-        table_name = 'fairhealth-user'
-    email = UnicodeAttribute(hash_key=True)
-    organization = UnicodeAttribute(null=True)
-    first_name = UnicodeAttribute(null=True)
-    last_name = UnicodeAttribute(null=True)
-    role = NumberAttribute(default=0)
-
-
 class ScreenModel(Model):
     class Meta:
         table_name = 'fairhealth-screen'

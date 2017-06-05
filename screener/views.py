@@ -5,10 +5,12 @@ from django.conf import settings
 from django.urls import reverse
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.views.generic import View, TemplateView
+from django.utils.decorators import method_decorator
+from lockdown.decorators import lockdown
 
 from twilio.rest import Client
 
-from screener.models import ScreenModel, UserModel
+from screener.models import ScreenModel, ResourceModel
 
 FORM_PARAMS = ['zip_code', 'insurance_uid', 'specialty_uid', 'gender']
 
@@ -231,6 +233,7 @@ class ProviderDetailView(TemplateView):
 class DashboardView(TemplateView):
     template_name = 'dashboard.html'
 
+    @method_decorator(lockdown())
     def dispatch(self, request, *args, **kwargs):
         return super(DashboardView, self).dispatch(request, *args, **kwargs)
 

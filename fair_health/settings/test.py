@@ -13,7 +13,7 @@ DATABASES = {
     }
 }
 
-from screener.models import ScreenModel, UserModel
+from screener.models import ScreenModel, ResourceModel
 
 ScreenModel.Meta.host = 'http://localhost:8000'
-UserModel.Meta.host = 'http://localhost:8000'
+ResourceModel.Meta.host = 'http://localhost:8000'
