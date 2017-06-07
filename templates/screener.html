@@ -52,7 +52,13 @@
       <tbody>
         {% for provider in providers %}
         <tr>
-          <td><a href="https://projects.propublica.org/vital-signs/doctor/{{provider.npi}}">{{provider.full_name}}</a></td>
+          <td>
+            {% if provider.website %}
+            <a href="{{provider.website}}">{{provider.full_name}}</a>
+            {% else %}
+            {{provider.full_name}}
+            {% endif %}
+          </td>
           <td>{{provider.location}}</td>
           <td>{{provider.phone}}</td>
         </tr>

@@ -60,6 +60,7 @@ def query_providers(params, skip=0):
         phone = practice['phones'][0]['number']
         d['phone'] = '{}-{}-{}'.format(phone[:3], phone[3:6], phone[6:])
         d['npi'] = doc['npi']
+        d['website'] = practice.get('website')
         doc_dicts.append(d)
 
     return doc_dicts

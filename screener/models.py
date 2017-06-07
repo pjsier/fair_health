@@ -5,13 +5,6 @@ from pynamodb.attributes import (UnicodeAttribute, NumberAttribute,
 from django.conf import settings
 
 
-ROLE_CHOICES = (
-    (0, 'Staff'),
-    (1, 'Manager'),
-    (2, 'Admin')
-)
-
-
 class ScreenModel(Model):
     class Meta:
         table_name = 'fairhealth-screen'
